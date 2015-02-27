@@ -6,7 +6,6 @@ import java.util.Random;
 import java.util.TreeSet;
 
 public class MinHash {
-
 	
 	private String folderPath;
 	private int numPermutations;
@@ -15,16 +14,19 @@ public class MinHash {
 	private int numTerms;
 	private int modP;
 	private ArrayList<ParameterPair> paraList;
+	private int minHashMatrix[][];
 	
- 	public void MinHash(String folderPath, int numPermutations){
+	
+ 	public MinHash(String folderPath, int numPermutations){
 		this.folderPath = folderPath;
 		this.numPermutations = numPermutations;
 		this.allDocuments = new ArrayList<Document>();
 		this.allTerms = new TreeSet<String>();
 		this.paraList = new ArrayList<ParameterPair>();
-		
 		addDocuments();
 		getAllTerms();
+
+		this.minHashMatrix = new int[this.numPermutations][this.allDocuments.size()];
 		
 		this.numTerms = this.allTerms.size();
 		this.modP = this.numTerms;
@@ -44,6 +46,42 @@ public class MinHash {
 		
 	}
 	
+	public String getFolderPath() {
+		return folderPath;
+	}
+
+	public void setFolderPath(String folderPath) {
+		this.folderPath = folderPath;
+	}
+
+	public ArrayList<Document> getAllDocuments() {
+		return allDocuments;
+	}
+
+	public void setAllDocuments(ArrayList<Document> allDocuments) {
+		this.allDocuments = allDocuments;
+	}
+
+	public int getModP() {
+		return modP;
+	}
+
+	public void setModP(int modP) {
+		this.modP = modP;
+	}
+
+	public ArrayList<ParameterPair> getParaList() {
+		return paraList;
+	}
+
+	public void setParaList(ArrayList<ParameterPair> paraList) {
+		this.paraList = paraList;
+	}
+
+	public void setAllTerms(TreeSet<String> allTerms) {
+		this.allTerms = allTerms;
+	}
+
 	public ArrayList<Integer> minHashSig(String filePath){
 		Document d = new Document(filePath);
 		for(ParameterPair pp: paraList){
@@ -99,6 +137,16 @@ public class MinHash {
 	}
 	public int numPermutations(){
 		return this.numPermutations;
+	}
+	
+	public int[][] minHashMatrix(){
+		for(int i=0;i<this.allDocuments.size();i++){
+			minHashSig(this.allDocuments.get(i).getFilePath());
+			for(int j=0;j<this.numPermutations;j++){
+				minHashMatrix[j][i] = this.allDocuments.get(i).getMinHashs().get(j);
+			}
+		}
+		return this.minHashMatrix;
 	}
 	
 	private void addDocuments(){

@@ -53,6 +53,37 @@ public class Document {
 		f = null;
 		return fName;
 	}
+	
+	public float exactJaccard(Document d2){
+		
+		float d1Size = this.terms.size();
+		float d2Size = d2.getTerms().size();
+		float totalNum = d1Size + d2Size;
+		
+		TreeSet<String> tempD1 = this.terms;
+		
+		tempD1.removeAll(d2.getTerms());
+		float intersectionSize = d1Size - tempD1.size();
+		
+		return intersectionSize/(totalNum-intersectionSize);
+		
+	}
+	public float approximateJaccard(Document d2, ArrayList<ParameterPair> paraList, int modP){
+		
+		int tempMinD1;
+		int tempMinD2;
+		float intersectionSize = 0;
+		for(ParameterPair pp: paraList){
+			tempMinD1 = this.calcMinHash(pp.getA(), pp.getB(), modP);
+			tempMinD2 = d2.calcMinHash(pp.getA(), pp.getB(), modP);
+			
+			if(tempMinD1 == tempMinD2){
+				intersectionSize++;
+			}
+		}
+		return intersectionSize/paraList.size();
+		
+	}
 	private void preProcessing(){
 		FileInputStream fstream;
 		BufferedReader br = null;

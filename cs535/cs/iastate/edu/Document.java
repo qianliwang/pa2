@@ -21,6 +21,7 @@ public class Document {
 		this.terms = new TreeSet<String>();
 		this.filePath = filePath;
 		preProcessing();
+		this.minHashs = new ArrayList<Integer>();
 	}
 	
 		
@@ -121,8 +122,8 @@ public class Document {
 		int hashValue;
 		long h;
 		long permValue;
-		long minPermValue = 0xFFFFFFFFFFFFFFFFL;
-		for(String s: terms){
+		long minPermValue = 0x0FFFFFFFFFFFFFFFL;
+		for(String s: this.terms){
 			hashValue = s.hashCode();
 			h = 0xFFFFFFFFL & hashValue;
 			permValue = (h*a+b)%modP;

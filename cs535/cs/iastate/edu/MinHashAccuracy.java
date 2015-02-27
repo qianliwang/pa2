@@ -4,8 +4,9 @@ public class MinHashAccuracy {
 
 	public static void main(String[] args){
 		String folderPath = null;
-		int numPermutation = 0;
-		float e = 0;
+		folderPath = "/Users/watson/Code/workspace/cs535/space/";
+		int numPermutation = 400;
+		float e = (float) 0.09;
 		
 		MinHash mh= new MinHash(folderPath,numPermutation);
 		
@@ -18,6 +19,7 @@ public class MinHashAccuracy {
 		for(int i=0;i<mh.getAllDocuments().size();i++){
 			tempD = mh.getAllDocuments().get(i);
 			for(int j=i+1;j<mh.getAllDocuments().size();j++){
+//				System.out.println(j);
 				exactJacSimilarity = tempD.exactJaccard(mh.getAllDocuments().get(j));
 				approJacSimilarity = tempD.approximateJaccard(mh.getAllDocuments().get(j), mh.getParaList(), mh.getModP());
 				if(Math.abs(exactJacSimilarity-approJacSimilarity)>e){

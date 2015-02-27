@@ -24,12 +24,15 @@ public class MinHash {
 		this.allTerms = new TreeSet<String>();
 		this.paraList = new ArrayList<ParameterPair>();
 		addDocuments();
+		System.out.println("Finish adding documents");
 		getAllTerms();
-
+		System.out.println("There are totally "+this.allTerms.size()+" terms under the folder.");
+		System.out.println("There are "+this.numPermutations+" permutations.");
+		
 		this.minHashMatrix = new int[this.numPermutations][this.allDocuments.size()];
 		
 		this.numTerms = this.allTerms.size();
-		this.modP = this.numTerms;
+		this.modP = this.numTerms*10;
 		while(!isPrime(this.modP)){
 			this.modP++;
 		}
@@ -38,8 +41,8 @@ public class MinHash {
 		int tempA;
 		int tempB;
 		for(int i=0;i<numPermutations;i++){
-			tempA = randomGenerator.nextInt(this.numPermutations-1);
-			tempB = randomGenerator.nextInt(this.numPermutations-1);
+			tempA = randomGenerator.nextInt(this.numTerms-1);
+			tempB = randomGenerator.nextInt(this.numTerms-1);
 			paraList.add(new ParameterPair(tempA,tempB));
 		}
 		
@@ -140,10 +143,12 @@ public class MinHash {
 	}
 	
 	public int[][] minHashMatrix(){
+		Document d;
 		for(int i=0;i<this.allDocuments.size();i++){
-			minHashSig(this.allDocuments.get(i).getFilePath());
+			d = this.allDocuments.get(i);
+			d.setMinHashs(minHashSig(d.getFilePath()));
 			for(int j=0;j<this.numPermutations;j++){
-				minHashMatrix[j][i] = this.allDocuments.get(i).getMinHashs().get(j);
+				minHashMatrix[j][i] = d.getMinHashs().get(j);
 			}
 		}
 		return this.minHashMatrix;
@@ -176,5 +181,10 @@ public class MinHash {
 	            return false;
 	    }
 	    return true;
+	}
+	@Override
+	public String toString(){
+		String result = this.folderPath+" contains "+this.allDocuments.size()+" documents and "+this.allTerms.size()+" terms totally.\n";
+		return result;
 	}
 }

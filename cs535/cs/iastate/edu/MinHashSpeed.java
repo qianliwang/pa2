@@ -4,8 +4,8 @@ public class MinHashSpeed {
 	
 	public static void main(String[] args){
 		String folderPath = null;
-		int numPermutation = 0;
-		float e = 0;
+		folderPath = "/Users/watson/Code/workspace/cs535/space/";
+		int numPermutation = 400;
 		
 		MinHash mh= new MinHash(folderPath,numPermutation);
 		

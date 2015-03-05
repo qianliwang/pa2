@@ -1,7 +1,9 @@
 package pa2.cs535.cs.iastate.edu;
 
 import java.io.File;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.TreeSet;
 
@@ -16,6 +18,7 @@ public class MinHash {
 	private ArrayList<ParameterPair> paraList;
 	private int minHashMatrix[][];
 	
+	private HashMap<String,Integer> allTermsHashMap;
 	
  	public MinHash(String folderPath, int numPermutations){
 		this.folderPath = folderPath;
@@ -23,21 +26,18 @@ public class MinHash {
 		this.allDocuments = new ArrayList<Document>();
 		this.allTerms = new TreeSet<String>();
 		this.paraList = new ArrayList<ParameterPair>();
+		this.allTermsHashMap = new HashMap<String,Integer>();
 		addDocuments();
-		System.out.println("Finish adding documents");
-		getAllTerms();
-		System.out.println("There are totally "+this.allTerms.size()+" terms under the folder.");
-		System.out.println("There are "+this.numPermutations+" permutations.");
 		
 		this.minHashMatrix = new int[this.numPermutations][this.allDocuments.size()];
 		
 		this.numTerms = this.allTerms.size();
-		this.modP = this.numTerms*10;
+		this.modP = this.numTerms*20;
 		while(!isPrime(this.modP)){
 			this.modP++;
 		}
 		
-		Random randomGenerator = new Random();
+		Random randomGenerator = new SecureRandom();
 		int tempA;
 		int tempB;
 		for(int i=0;i<numPermutations;i++){
@@ -46,6 +46,18 @@ public class MinHash {
 			paraList.add(new ParameterPair(tempA,tempB));
 		}
 		
+		int count = 1;
+		for(String s:this.allTerms){
+			this.allTermsHashMap.put(s,count);
+			count++;
+		}
+		
+		calcMinHashSigs();
+		
+		System.out.println("Finish adding documents");
+
+		System.out.println("There are totally "+this.allTerms.size()+" terms under the folder.");
+		System.out.println("There are "+this.numPermutations+" permutations.");
 		
 	}
 	
@@ -85,6 +97,14 @@ public class MinHash {
 		this.allTerms = allTerms;
 	}
 
+	public HashMap<String, Integer> getAllTermsHashMap() {
+		return allTermsHashMap;
+	}
+
+	public void setAllTermsHashMap(HashMap<String, Integer> allTermsHashMap) {
+		this.allTermsHashMap = allTermsHashMap;
+	}
+
 	public ArrayList<Integer> minHashSig(String filePath){
 		Document d = new Document(filePath);
 		for(ParameterPair pp: paraList){
@@ -92,7 +112,7 @@ public class MinHash {
 		}
 		return d.getMinHashs();
 	}
-	
+/*	
 	public float exactJaccard(String file1,String file2){
 		Document d1 = new Document(file1);
 		Document d2 = new Document(file2);
@@ -127,6 +147,7 @@ public class MinHash {
 		
 	}
 	
+*/	
 	public ArrayList<String> allDocs(){
 		ArrayList<String> fileNameList = new ArrayList<String>();
 		for(Document d:allDocuments){
@@ -146,7 +167,6 @@ public class MinHash {
 		Document d;
 		for(int i=0;i<this.allDocuments.size();i++){
 			d = this.allDocuments.get(i);
-			d.setMinHashs(minHashSig(d.getFilePath()));
 			for(int j=0;j<this.numPermutations;j++){
 				minHashMatrix[j][i] = d.getMinHashs().get(j);
 			}
@@ -161,16 +181,34 @@ public class MinHash {
 		Document d;
 		for(int i=0;i<listOfFiles.length;i++){
 //			System.out.println(listOfFiles[i].getAbsolutePath());
-			d = new Document(listOfFiles[i].getAbsolutePath());
+			d = new Document(listOfFiles[i].getAbsolutePath());	
 			this.allDocuments.add(d);
+			for(String s:d.getTerms()){
+				this.allTerms.add(s);
+			}
 		}
 	}
-	private void getAllTerms(){
+	
+/*	private void getAllTerms(){
 		for(Document d:allDocuments){
 			for(String s:d.getTerms()){
 				this.allTerms.add(s);
 			}
 		}
+	}*/
+	
+	private void calcMinHashSigs(){
+		int temp;
+		for(Document d:allDocuments){
+			for(ParameterPair pp:paraList){
+				temp = d.calcMinHash(pp.getA(), pp.getB(), this.modP,this.allTermsHashMap);
+				if(temp<0){
+					System.err.println(temp);
+				}
+				d.getMinHashs().add(temp);
+			}
+		}
+		System.out.println();
 	}
 	protected boolean isPrime(int n) {
 	    //check if n is a multiple of 2

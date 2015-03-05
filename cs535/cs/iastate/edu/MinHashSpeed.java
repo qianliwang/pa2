@@ -9,7 +9,8 @@ public class MinHashSpeed {
 		
 		MinHash mh= new MinHash(folderPath,numPermutation);
 		
-		Document tempD;
+		Document tempD1;
+		Document tempD2;
 		float exactJacSimilarity = 0;
 		float approJacSimilarity = 0;
 		
@@ -18,27 +19,29 @@ public class MinHashSpeed {
 		
 		timeStart = System.currentTimeMillis();
 		for(int i=0;i<mh.getAllDocuments().size();i++){
-			tempD = mh.getAllDocuments().get(i);
+			tempD1 = mh.getAllDocuments().get(i);
 			for(int j=i+1;j<mh.getAllDocuments().size();j++){
-				exactJacSimilarity = tempD.exactJaccard(mh.getAllDocuments().get(j));
+				tempD2 = mh.getAllDocuments().get(j);
+				exactJacSimilarity = tempD1.exactJaccard(tempD2);
 			}
 		}
 		timeEnd = System.currentTimeMillis();
 		
-		System.out.println(mh.getAllDocuments().size()+" files takes "+(timeEnd-timeStart)+ "milliseconds to calculate the exact Jaccard similarity.");
+		System.out.println(mh.getAllDocuments().size()+" files takes "+(timeEnd-timeStart)+ " milliseconds to calculate the exact Jaccard similarity.");
 		System.out.println("------------------------------------------------");
 		
 		timeStart = System.currentTimeMillis();
 		
 		for(int i=0;i<mh.getAllDocuments().size();i++){
-			tempD = mh.getAllDocuments().get(i);
+			tempD1 = mh.getAllDocuments().get(i);
 			for(int j=i+1;j<mh.getAllDocuments().size();j++){
-				approJacSimilarity = tempD.approximateJaccard(mh.getAllDocuments().get(j), mh.getParaList(), mh.getModP());
+				tempD2 = mh.getAllDocuments().get(j);
+				approJacSimilarity = tempD1.approximateJaccard(tempD2);
 				
 			}
 		}
 		
 		timeEnd = System.currentTimeMillis();
-		System.out.println(mh.getAllDocuments().size()+" files takes "+(timeEnd-timeStart)+ "milliseconds to calculate the approximate Jaccard similarity.");
+		System.out.println(mh.getAllDocuments().size()+" files takes "+(timeEnd-timeStart)+ " milliseconds to calculate the approximate Jaccard similarity.");
 		}
 }

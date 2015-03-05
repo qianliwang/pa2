@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,14 +62,27 @@ public class Document {
 		float d2Size = d2.getTerms().size();
 		float totalNum = d1Size + d2Size;
 		
-		TreeSet<String> tempD1 = this.terms;
+		TreeSet<String> tempD1 = (TreeSet)this.terms.clone();
 		
 		tempD1.removeAll(d2.getTerms());
 		float intersectionSize = d1Size - tempD1.size();
-		
+		tempD1 = null;
 		return intersectionSize/(totalNum-intersectionSize);
 		
 	}
+	
+	public float approximateJaccard(Document d2){
+		float intersectionSize = 0;
+		float result = 0;
+		for(int i=0; i<this.minHashs.size();i++){
+			if(this.minHashs.get(i) == d2.getMinHashs().get(i)){
+				intersectionSize++;
+			}
+		}
+		result = intersectionSize/this.minHashs.size();
+		return result;
+	}
+/*	
 	public float approximateJaccard(Document d2, ArrayList<ParameterPair> paraList, int modP){
 		
 		int tempMinD1;
@@ -82,9 +96,33 @@ public class Document {
 				intersectionSize++;
 			}
 		}
+//		if(intersectionSize>0){
+//		System.out.println(intersectionSize);
+//		}
 		return intersectionSize/paraList.size();
 		
 	}
+	public float approximateJaccard(Document d2, ArrayList<ParameterPair> paraList, int modP,HashMap<String,Integer> hm){
+		
+		int tempMinD1;
+		int tempMinD2;
+		float intersectionSize = 0;
+		for(ParameterPair pp: paraList){
+			int a = this.terms.size();
+			tempMinD1 = calcMinHash(pp.getA(), pp.getB(), modP,hm);
+			tempMinD2 = d2.calcMinHash(pp.getA(), pp.getB(), modP,hm);
+			
+			if(tempMinD1 == tempMinD2){
+				intersectionSize++;
+			}
+		}
+//		if(intersectionSize>0){
+//		System.out.println(intersectionSize);
+//		}
+		return intersectionSize/paraList.size();
+		
+	}
+*/	
 	private void preProcessing(){
 		FileInputStream fstream;
 		BufferedReader br = null;
@@ -123,8 +161,9 @@ public class Document {
 		long h;
 		long permValue;
 		long minPermValue = 0x0FFFFFFFFFFFFFFFL;
+		int tempModP = modP/10;
 		for(String s: this.terms){
-			hashValue = s.hashCode();
+			hashValue = s.hashCode()%tempModP;
 			h = 0xFFFFFFFFL & hashValue;
 			permValue = (h*a+b)%modP;
 			if(minPermValue > permValue){
@@ -133,5 +172,19 @@ public class Document {
 		}
 		
 		return (int)minPermValue;
+	}
+	public int calcMinHash(int a,int b, int modP,HashMap<String,Integer> hm){
+		int hashValue;
+		int permValue;
+		int minPermValue = modP;
+		for(String s: this.terms){
+			hashValue = hm.get(s);
+			permValue = (hashValue*a+b)%modP;
+			if(minPermValue > permValue){
+				minPermValue = permValue;
+			}
+		}
+		
+		return minPermValue;
 	}
 }

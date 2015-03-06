@@ -31,7 +31,9 @@ public class LSH {
 				tempSB = new StringBuffer();
 				for(int r=0;r<rows;r++){
 					tempSB.append(this.minHashMatrix[i*rows+r][j]);
+					tempSB.append("$");
 				}
+//				System.out.println(tempSB.toString());
 				if(tempHashMap.containsKey(tempSB.toString())){
 					tempLinkSet = tempHashMap.get(tempSB.toString());
 				}else{
@@ -48,12 +50,31 @@ public class LSH {
 	public TreeSet<String> nearDuplicatesOf(String docName){
 		TreeSet<String> result = new TreeSet<String>();
 		
+		int numPermutations = this.minHashMatrix.length;
+		int rows = numPermutations/this.bands;
+		int currentBand = 0;
 		for(HashMap<String,TreeSet<String>> hm: this.hashTableList){
 			for(String s:hm.keySet()){
 				if(hm.get(s).contains(docName)){
-					result.addAll(hm.get(s));
+					boolean isFalsePositive;
+					int docNameIndex = this.fileNames.indexOf(docName);
+					int fileName2Index;
+					for(String fileName2:hm.get(s)){
+						isFalsePositive = false;
+						fileName2Index = this.fileNames.indexOf(fileName2);
+						for(int i=0;i<rows;i++){
+							if(this.minHashMatrix[currentBand*rows+i][docNameIndex]!=this.minHashMatrix[currentBand*rows+i][fileName2Index]){
+								isFalsePositive = true;
+								break;
+							}
+						}
+						if(!isFalsePositive){
+							result.addAll(hm.get(s));
+						}
+					}
 				}
 			}
+			currentBand++;
 		}
 		result.remove(docName);
 		return result;

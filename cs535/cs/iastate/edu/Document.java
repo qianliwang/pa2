@@ -24,7 +24,6 @@ public class Document {
 		preProcessing();
 		this.minHashs = new ArrayList<Integer>();
 	}
-	
 		
 	public TreeSet<String> getTerms() {
 		return terms;
@@ -63,10 +62,11 @@ public class Document {
 		float totalNum = d1Size + d2Size;
 		
 		TreeSet<String> tempD1 = (TreeSet)this.terms.clone();
-		
-		tempD1.removeAll(d2.getTerms());
-		float intersectionSize = d1Size - tempD1.size();
+		TreeSet<String> tempD2 = (TreeSet)d2.getTerms().clone();
+		tempD1.retainAll(tempD2);
+		float intersectionSize = tempD1.size();
 		tempD1 = null;
+		tempD2 = null;
 		return intersectionSize/(totalNum-intersectionSize);
 		
 	}
@@ -74,15 +74,83 @@ public class Document {
 	public float approximateJaccard(Document d2){
 		float intersectionSize = 0;
 		float result = 0;
+		int tempMin1,tempMin2;
 		for(int i=0; i<this.minHashs.size();i++){
-			if(this.minHashs.get(i) == d2.getMinHashs().get(i)){
+			tempMin1 = this.minHashs.get(i);
+			tempMin2 = d2.getMinHashs().get(i);
+			if(tempMin1 == tempMin2){
 				intersectionSize++;
 			}
 		}
 		result = intersectionSize/this.minHashs.size();
 		return result;
 	}
-/*	
+
+	private void preProcessing(){
+		FileInputStream fstream;
+		BufferedReader br = null;
+		try {
+			fstream = new FileInputStream(this.filePath);
+			br = new BufferedReader(new InputStreamReader(fstream));
+
+			String strLine = null;
+			
+			Pattern pattern = Pattern.compile("([A-Za-z]{3,})");
+			Matcher matcher;
+			String tempString;
+			while ((strLine = br.readLine()) != null) {
+				matcher = pattern.matcher(strLine);
+				while(matcher.find()){
+					tempString = matcher.group();
+					if(!tempString.matches("(?i)the")){
+						this.terms.add(tempString.toLowerCase());
+					}
+					
+//					System.out.println(tempString);
+				}
+			}
+			
+			br.close();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public int calcMinHash(int a,int b, int modP,HashMap<String,Integer> hm){
+		int hashValue;
+		int permValue;
+		int minPermValue = modP;
+		for(String s: this.terms){
+			hashValue = hm.get(s);
+			permValue = (hashValue*a+b)%modP;
+			if(minPermValue > permValue){
+				minPermValue = permValue;
+			}
+		}
+		this.minHashs.add(minPermValue);
+		return minPermValue;
+	}
+	public int calcMinHash(int permutation[],HashMap<String,Integer> hm){
+		
+		int minPermValue = hm.size();
+		int hashValue;
+		int permValue;
+		
+		for(String s: this.terms){
+			hashValue = hm.get(s);
+			permValue = permutation[hashValue];
+			if(minPermValue > permValue){
+				minPermValue = permValue;
+			}
+		}
+		this.minHashs.add(minPermValue);
+		return minPermValue;
+	}
+	/*	
 	public float approximateJaccard(Document d2, ArrayList<ParameterPair> paraList, int modP){
 		
 		int tempMinD1;
@@ -123,83 +191,4 @@ public class Document {
 		
 	}
 */	
-	private void preProcessing(){
-		FileInputStream fstream;
-		BufferedReader br = null;
-		try {
-			fstream = new FileInputStream(this.filePath);
-			br = new BufferedReader(new InputStreamReader(fstream));
-
-			String strLine = null;
-			
-			Pattern pattern = Pattern.compile("([A-Za-z]{3,})");
-			Matcher matcher;
-			String tempString;
-			while ((strLine = br.readLine()) != null) {
-				matcher = pattern.matcher(strLine);
-				while(matcher.find()){
-					tempString = matcher.group();
-					if(!tempString.matches("(?i)the")){
-						this.terms.add(tempString.toLowerCase());
-					}
-					
-//					System.out.println(tempString);
-				}
-			}
-			
-			br.close();
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-	public int calcMinHash(int a,int b, int modP){
-		int hashValue;
-		long h;
-		long permValue;
-		long minPermValue = 0x0FFFFFFFFFFFFFFFL;
-		int tempModP = modP/10;
-		for(String s: this.terms){
-			hashValue = s.hashCode()%tempModP;
-			h = 0xFFFFFFFFL & hashValue;
-			permValue = (h*a+b)%modP;
-			if(minPermValue > permValue){
-				minPermValue = permValue;
-			}
-		}
-		
-		return (int)minPermValue;
-	}
-	public int calcMinHash(int a,int b, int modP,HashMap<String,Integer> hm){
-		int hashValue;
-		int permValue;
-		int minPermValue = modP;
-		for(String s: this.terms){
-			hashValue = hm.get(s);
-			permValue = (hashValue*a+b)%modP;
-			if(minPermValue > permValue){
-				minPermValue = permValue;
-			}
-		}
-		
-		return minPermValue;
-	}
-	public int calcMinHash(int permutation[],HashMap<String,Integer> hm){
-		
-		int minPermValue = hm.size();
-		int hashValue;
-		int permValue;
-		
-		for(String s: this.terms){
-			hashValue = hm.get(s);
-			permValue = permutation[hashValue];
-			if(minPermValue > permValue){
-				minPermValue = permValue;
-			}
-		}
-		return minPermValue;
-	}
 }

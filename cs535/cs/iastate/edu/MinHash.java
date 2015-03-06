@@ -35,7 +35,7 @@ public class MinHash {
 		this.minHashMatrix = new int[this.numPermutations][this.allDocuments.size()];
 		this.kPermutations = new int[this.numTerms+1][this.numPermutations];
 		
-		this.modP = this.numTerms*20;
+		this.modP = this.numTerms*10;
 		while(!isPrime(this.modP)){
 			this.modP++;
 		}
@@ -55,10 +55,8 @@ public class MinHash {
 			count++;
 		}
 		
-		
-		genKPermutations(randomGenerator);
-		calcMinHashSigs();
-		
+		calcMinHashSigs_oneoneHash();
+//		calcMinHashSigs_permutation();
 		System.out.println("Finish adding documents");
 
 		System.out.println("There are totally "+this.allTerms.size()+" terms under the folder.");
@@ -113,11 +111,119 @@ public class MinHash {
 	public ArrayList<Integer> minHashSig(String filePath){
 		Document d = new Document(filePath);
 		for(ParameterPair pp: paraList){
-			d.getMinHashs().add(d.calcMinHash(pp.getA(), pp.getB(), this.modP));
+			d.getMinHashs().add(d.calcMinHash(pp.getA(), pp.getB(), this.modP,this.allTermsHashMap));
 		}
 		return d.getMinHashs();
 	}
-/*	
+	
+	public ArrayList<String> allDocs(){
+		ArrayList<String> fileNameList = new ArrayList<String>();
+		for(Document d:allDocuments){
+			fileNameList.add(d.getFileName());
+		}
+		return fileNameList;
+	}
+	
+	public int numTerms(){
+		return this.numTerms;
+	}
+	public int numPermutations(){
+		return this.numPermutations;
+	}
+	
+	public int[][] minHashMatrix(){
+		Document d;
+		for(int i=0;i<this.allDocuments.size();i++){
+			d = this.allDocuments.get(i);
+			for(int j=0;j<this.numPermutations;j++){
+				minHashMatrix[j][i] = d.getMinHashs().get(j);
+			}
+		}
+		return this.minHashMatrix;
+	}
+	
+	private void genKPermutations(){
+		ArrayList<Integer> list1 = new ArrayList<Integer>();
+		Random random = new SecureRandom();
+		for(int m = 0;m<this.numPermutations;m++){
+			for(int i=1;i<=this.numTerms;i++){
+				list1.add(i);
+			}
+			int temp = 0;
+			int count = 1;
+			while(list1.size()!=0){
+				temp = random.nextInt(list1.size());
+				this.kPermutations[count][m] = list1.get(temp);
+				count++;
+				list1.remove(temp);
+			}
+		}
+		list1 = null;
+	}
+	
+	private void addDocuments(){
+		File folder = new File(this.folderPath);	
+		File[] listOfFiles = folder.listFiles();
+		System.out.println(this.folderPath+" contains "+listOfFiles.length+" files.\n");
+		Document d;
+		for(int i=0;i<listOfFiles.length;i++){
+//			System.out.println(listOfFiles[i].getAbsolutePath());
+			d = new Document(listOfFiles[i].getAbsolutePath());	
+			this.allDocuments.add(d);
+			for(String s:d.getTerms()){
+				this.allTerms.add(s);
+			}
+		}
+	}
+
+	private void calcMinHashSigs_oneoneHash(){
+		int temp;
+		for(Document d:allDocuments){
+			for(ParameterPair pp:paraList){
+				temp = d.calcMinHash(pp.getA(), pp.getB(), this.modP,this.allTermsHashMap);
+				if(temp<0){
+					System.err.println(temp);
+				}
+//				d.getMinHashs().add(temp);
+			}
+		}
+		System.out.println();
+	}
+	
+	
+	private void calcMinHashSigs_permutation(){
+		genKPermutations();
+		int temp;
+		int tempPerm[] = new int [this.numTerms+1];
+		for(Document d:allDocuments){
+			for(int j = 0;j<this.numPermutations;j++){
+				for(int i=1;i<=this.numTerms;i++){
+					tempPerm[i] = this.kPermutations[i][j];
+				}
+				temp = d.calcMinHash(tempPerm,this.allTermsHashMap);
+//				d.getMinHashs().add(temp);
+			}
+		}
+		System.out.println();
+	}
+	
+	protected boolean isPrime(int n) {
+	    //check if n is a multiple of 2
+	    if (n%2==0) return false;
+	    //if not, then just check the odds
+	    for(int i=3;i*i<=n;i+=2) {
+	        if(n%i==0)
+	            return false;
+	    }
+	    return true;
+	}
+	@Override
+	public String toString(){
+		String result = this.folderPath+" contains "+this.allDocuments.size()+" documents and "+this.allTerms.size()+" terms totally.\n";
+		return result;
+	}
+	
+	/*	
 	public float exactJaccard(String file1,String file2){
 		Document d1 = new Document(file1);
 		Document d2 = new Document(file2);
@@ -152,120 +258,5 @@ public class MinHash {
 		
 	}
 	
-*/	
-	public ArrayList<String> allDocs(){
-		ArrayList<String> fileNameList = new ArrayList<String>();
-		for(Document d:allDocuments){
-			fileNameList.add(d.getFileName());
-		}
-		return fileNameList;
-	}
-	
-	public int numTerms(){
-		return this.numTerms;
-	}
-	public int numPermutations(){
-		return this.numPermutations;
-	}
-	
-	public int[][] minHashMatrix(){
-		Document d;
-		for(int i=0;i<this.allDocuments.size();i++){
-			d = this.allDocuments.get(i);
-			for(int j=0;j<this.numPermutations;j++){
-				minHashMatrix[j][i] = d.getMinHashs().get(j);
-			}
-		}
-		return this.minHashMatrix;
-	}
-	
-	private void genKPermutations(Random random){
-		ArrayList<Integer> list1 = new ArrayList<Integer>();
-		
-		for(int m = 0;m<this.numPermutations;m++){
-			for(int i=1;i<=this.numTerms;i++){
-				list1.add(i);
-			}
-			int temp = 0;
-			int count = 1;
-			while(list1.size()!=0){
-				temp = random.nextInt(list1.size());
-				this.kPermutations[count][m] = list1.get(temp);
-				count++;
-				list1.remove(temp);
-			}
-		}
-		list1 = null;
-	}
-	
-	private void addDocuments(){
-		File folder = new File(this.folderPath);	
-		File[] listOfFiles = folder.listFiles();
-		System.out.println(this.folderPath+" contains "+listOfFiles.length+" files.\n");
-		Document d;
-		for(int i=0;i<listOfFiles.length;i++){
-//			System.out.println(listOfFiles[i].getAbsolutePath());
-			d = new Document(listOfFiles[i].getAbsolutePath());	
-			this.allDocuments.add(d);
-			for(String s:d.getTerms()){
-				this.allTerms.add(s);
-			}
-		}
-	}
-	
-/*	private void getAllTerms(){
-		for(Document d:allDocuments){
-			for(String s:d.getTerms()){
-				this.allTerms.add(s);
-			}
-		}
-	}*/
-	
-/*	
-	private void calcMinHashSigs(){
-		int temp;
-		for(Document d:allDocuments){
-			for(ParameterPair pp:paraList){
-				temp = d.calcMinHash(pp.getA(), pp.getB(), this.modP,this.allTermsHashMap);
-				if(temp<0){
-					System.err.println(temp);
-				}
-				d.getMinHashs().add(temp);
-			}
-		}
-		System.out.println();
-	}
-	*/
-	
-	private void calcMinHashSigs(){
-		int temp;
-		int tempPerm[] = new int [this.numTerms+1];
-		for(Document d:allDocuments){
-			
-			for(int j = 0;j<this.numPermutations;j++){
-				for(int i=1;i<=this.numTerms;i++){
-					tempPerm[i] = this.kPermutations[i][j];
-				}
-				temp = d.calcMinHash(tempPerm,this.allTermsHashMap);
-				d.getMinHashs().add(temp);
-			}
-		}
-		System.out.println();
-	}
-	
-	protected boolean isPrime(int n) {
-	    //check if n is a multiple of 2
-	    if (n%2==0) return false;
-	    //if not, then just check the odds
-	    for(int i=3;i*i<=n;i+=2) {
-	        if(n%i==0)
-	            return false;
-	    }
-	    return true;
-	}
-	@Override
-	public String toString(){
-		String result = this.folderPath+" contains "+this.allDocuments.size()+" documents and "+this.allTerms.size()+" terms totally.\n";
-		return result;
-	}
+*/
 }

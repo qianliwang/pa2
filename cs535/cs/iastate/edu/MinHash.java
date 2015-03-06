@@ -18,6 +18,8 @@ public class MinHash {
 	private ArrayList<ParameterPair> paraList;
 	private int minHashMatrix[][];
 	
+	private int kPermutations[][];
+	
 	private HashMap<String,Integer> allTermsHashMap;
 	
  	public MinHash(String folderPath, int numPermutations){
@@ -29,9 +31,10 @@ public class MinHash {
 		this.allTermsHashMap = new HashMap<String,Integer>();
 		addDocuments();
 		
-		this.minHashMatrix = new int[this.numPermutations][this.allDocuments.size()];
-		
 		this.numTerms = this.allTerms.size();
+		this.minHashMatrix = new int[this.numPermutations][this.allDocuments.size()];
+		this.kPermutations = new int[this.numTerms+1][this.numPermutations];
+		
 		this.modP = this.numTerms*20;
 		while(!isPrime(this.modP)){
 			this.modP++;
@@ -52,6 +55,8 @@ public class MinHash {
 			count++;
 		}
 		
+		
+		genKPermutations(randomGenerator);
 		calcMinHashSigs();
 		
 		System.out.println("Finish adding documents");
@@ -174,6 +179,25 @@ public class MinHash {
 		return this.minHashMatrix;
 	}
 	
+	private void genKPermutations(Random random){
+		ArrayList<Integer> list1 = new ArrayList<Integer>();
+		
+		for(int m = 0;m<this.numPermutations;m++){
+			for(int i=1;i<=this.numTerms;i++){
+				list1.add(i);
+			}
+			int temp = 0;
+			int count = 1;
+			while(list1.size()!=0){
+				temp = random.nextInt(list1.size());
+				this.kPermutations[count][m] = list1.get(temp);
+				count++;
+				list1.remove(temp);
+			}
+		}
+		list1 = null;
+	}
+	
 	private void addDocuments(){
 		File folder = new File(this.folderPath);	
 		File[] listOfFiles = folder.listFiles();
@@ -197,6 +221,7 @@ public class MinHash {
 		}
 	}*/
 	
+/*	
 	private void calcMinHashSigs(){
 		int temp;
 		for(Document d:allDocuments){
@@ -210,6 +235,24 @@ public class MinHash {
 		}
 		System.out.println();
 	}
+	*/
+	
+	private void calcMinHashSigs(){
+		int temp;
+		int tempPerm[] = new int [this.numTerms+1];
+		for(Document d:allDocuments){
+			
+			for(int j = 0;j<this.numPermutations;j++){
+				for(int i=1;i<=this.numTerms;i++){
+					tempPerm[i] = this.kPermutations[i][j];
+				}
+				temp = d.calcMinHash(tempPerm,this.allTermsHashMap);
+				d.getMinHashs().add(temp);
+			}
+		}
+		System.out.println();
+	}
+	
 	protected boolean isPrime(int n) {
 	    //check if n is a multiple of 2
 	    if (n%2==0) return false;

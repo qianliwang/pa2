@@ -187,4 +187,19 @@ public class Document {
 		
 		return minPermValue;
 	}
+	public int calcMinHash(int permutation[],HashMap<String,Integer> hm){
+		
+		int minPermValue = hm.size();
+		int hashValue;
+		int permValue;
+		
+		for(String s: this.terms){
+			hashValue = hm.get(s);
+			permValue = permutation[hashValue];
+			if(minPermValue > permValue){
+				minPermValue = permValue;
+			}
+		}
+		return minPermValue;
+	}
 }

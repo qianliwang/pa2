@@ -58,6 +58,8 @@ public class NearDuplicates {
 				if(!testFile.equals("")){
 					result = lsh.nearDuplicatesOf(testFile);
 					
+					lsh.removeFalsePostive(testFile, result, s);
+					
 					for(String ss:result){
 						System.out.println(ss);
 					}

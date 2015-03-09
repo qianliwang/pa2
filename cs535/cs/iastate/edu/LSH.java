@@ -70,6 +70,8 @@ public class LSH {
 						}
 						if(!isFalsePositive){
 							result.addAll(hm.get(s));
+						}else{
+							System.err.println("False Positive!");
 						}
 					}
 				}
@@ -78,6 +80,28 @@ public class LSH {
 		}
 		result.remove(docName);
 		return result;
+	}
+	
+	public void removeFalsePostive(String docName,TreeSet<String> similarDocs,float s){
+		int numPermutations = this.minHashMatrix.length;
+		int docNameIndex = this.fileNames.indexOf(docName);
+		int fileName2Index;
+		int count;
+		float approximateSimilarity;
+		for(String fileName2:similarDocs){
+			count = 0;
+			fileName2Index = this.fileNames.indexOf(fileName2);
+			for(int i=0;i<numPermutations;i++){
+				if(this.minHashMatrix[i][docNameIndex]==this.minHashMatrix[i][fileName2Index]){
+					count++;
+				}
+			}
+			approximateSimilarity = (float)count/numPermutations;
+			if(approximateSimilarity<s){
+				System.err.println("False Positive: " + fileName2);
+//				similarDocs.remove(fileName2);
+			}
+		}
 	}
 	
 }

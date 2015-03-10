@@ -68,44 +68,20 @@ public class MinHash {
 		return folderPath;
 	}
 
-	public void setFolderPath(String folderPath) {
-		this.folderPath = folderPath;
-	}
-
 	public ArrayList<Document> getAllDocuments() {
 		return allDocuments;
-	}
-
-	public void setAllDocuments(ArrayList<Document> allDocuments) {
-		this.allDocuments = allDocuments;
 	}
 
 	public int getModP() {
 		return modP;
 	}
 
-	public void setModP(int modP) {
-		this.modP = modP;
-	}
-
 	public ArrayList<ParameterPair> getParaList() {
 		return paraList;
 	}
 
-	public void setParaList(ArrayList<ParameterPair> paraList) {
-		this.paraList = paraList;
-	}
-
-	public void setAllTerms(TreeSet<String> allTerms) {
-		this.allTerms = allTerms;
-	}
-
 	public HashMap<String, Integer> getAllTermsHashMap() {
 		return allTermsHashMap;
-	}
-
-	public void setAllTermsHashMap(HashMap<String, Integer> allTermsHashMap) {
-		this.allTermsHashMap = allTermsHashMap;
 	}
 
 	public ArrayList<Integer> minHashSig(String filePath){

@@ -4,7 +4,8 @@ public class MinHashSpeed {
 	
 	public static void main(String[] args){
 		String folderPath = null;
-		folderPath = "/Users/watson/Code/workspace/cs535/space/";
+//		folderPath = "/Users/watson/Code/workspace/cs535/space/";
+		folderPath = "D:\\programmer\\workspace\\cs535_S2015\\space\\";
 		int numPermutation = 400;
 		
 		MinHash mh= new MinHash(folderPath,numPermutation);
@@ -29,6 +30,8 @@ public class MinHashSpeed {
 		
 		System.out.println(mh.getAllDocuments().size()+" files takes "+(timeEnd-timeStart)+ " milliseconds to calculate the exact Jaccard similarity.");
 		System.out.println("------------------------------------------------");
+		
+		
 		
 		timeStart = System.currentTimeMillis();
 		

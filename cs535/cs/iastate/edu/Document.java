@@ -29,23 +29,12 @@ public class Document {
 		return terms;
 	}
 
-	public void setTerms(TreeSet<String> terms) {
-		this.terms = terms;
-	}
-
 	public String getFilePath() {
 		return filePath;
 	}
 
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-
 	public ArrayList<Integer> getMinHashs() {
 		return minHashs;
-	}
-	public void setMinHashs(ArrayList<Integer> minHashs) {
-		this.minHashs = minHashs;
 	}
 
 	public String getFileName(){

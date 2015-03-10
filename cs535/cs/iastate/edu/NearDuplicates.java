@@ -34,14 +34,17 @@ public class NearDuplicates {
 			System.out.println("Please input the similarity rate, for example, 0.8");
 //			s = Float.parseFloat(br.readLine());
 			s = (float) 0.8;
-			int tempResult = (int) Math.ceil((1/Math.pow(s, r))*r);
-			while(numPermutations > tempResult && r < numPermutations){
-				r++;
-				tempResult = (int)Math.ceil((1/Math.pow(s, r))*r);
-			}
-			bands = numPermutations/r;
+//			int tempResult = (int) Math.ceil((1/Math.pow(s, r))*r);
+//			while(numPermutations > tempResult && r < numPermutations){
+//				r++;
+//				tempResult = (int)Math.ceil((1/Math.pow(s, r))*r);
+//			}
+//			bands = numPermutations/r;
+			System.out.println("Please input the number of bands:");
+//			bands = Integer.parseInt(br.readLine());
+			bands = 30;
 			
-			System.out.println("Given numOfPermutations "+numPermutations+" and the similarity rate "+s+". The number of bands is "+bands);
+			System.out.println("NumOfPermutations "+numPermutations+", the similarity rate "+s+" and the number of bands is "+bands);
 			System.out.println("Building LSH:");
 			fileNames = new ArrayList<String>();
 			for(Document d:minHash.getAllDocuments()){

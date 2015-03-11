@@ -25,6 +25,7 @@ public class LSH {
 		HashMap<String,TreeSet<String>> tempHashMap;
 		StringBuffer tempSB;
 		TreeSet<String> tempLinkSet = null;
+		
 		for(int i=0;i<this.bands;i++){
 			tempHashMap = new HashMap<String,TreeSet<String>>();
 			for(int j=0;j<this.fileNames.size();j++){
@@ -34,6 +35,27 @@ public class LSH {
 					tempSB.append("$");
 				}
 //				System.out.println(tempSB.toString());
+				if(tempHashMap.containsKey(tempSB.toString())){
+					tempLinkSet = tempHashMap.get(tempSB.toString());
+				}else{
+					tempLinkSet = new TreeSet<String>();
+				}
+				tempLinkSet.add(this.fileNames.get(j));
+				tempHashMap.put(tempSB.toString(), tempLinkSet);
+			}
+			hashTableList.add(tempHashMap);
+		}
+		
+		int leftRows = numPermutations - bands*rows;
+		System.out.println("There are " + bands*rows +" permutations currently!");
+		if(leftRows>0){
+			tempHashMap = new HashMap<String,TreeSet<String>>();
+			for(int j=0;j<this.fileNames.size();j++){
+				tempSB = new StringBuffer();
+				for(int r=bands*rows;r<numPermutations;r++){
+					tempSB.append(this.minHashMatrix[r][j]);
+					tempSB.append("$");
+				}
 				if(tempHashMap.containsKey(tempSB.toString())){
 					tempLinkSet = tempHashMap.get(tempSB.toString());
 				}else{
@@ -63,9 +85,11 @@ public class LSH {
 						isFalsePositive = false;
 						fileName2Index = this.fileNames.indexOf(fileName2);
 						for(int i=0;i<rows;i++){
-							if(this.minHashMatrix[currentBand*rows+i][docNameIndex]!=this.minHashMatrix[currentBand*rows+i][fileName2Index]){
-								isFalsePositive = true;
-								break;
+							if(currentBand*rows+i<numPermutations){
+								if(this.minHashMatrix[currentBand*rows+i][docNameIndex]!=this.minHashMatrix[currentBand*rows+i][fileName2Index]){
+									isFalsePositive = true;
+									break;
+								}
 							}
 						}
 						if(!isFalsePositive){

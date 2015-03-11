@@ -28,21 +28,25 @@ public class NearDuplicates {
 			folderPath = "/Users/watson/Code/workspace/cs535/pa2/";
 			System.out.println("Please input the number of permutations:");
 //			numPermutations = Integer.parseInt(br.readLine());
-			numPermutations = 600;
+			numPermutations = 400;
 			System.out.println("Building MinHash...");
 			minHash = new MinHash(folderPath,numPermutations);
 			System.out.println("Please input the similarity rate, for example, 0.8");
 //			s = Float.parseFloat(br.readLine());
 			s = (float) 0.8;
-//			int tempResult = (int) Math.ceil((1/Math.pow(s, r))*r);
-//			while(numPermutations > tempResult && r < numPermutations){
-//				r++;
-//				tempResult = (int)Math.ceil((1/Math.pow(s, r))*r);
-//			}
-//			bands = numPermutations/r;
+			
+			int tempResult = (int) Math.ceil((1/Math.pow(s, r))*r);
+			while(numPermutations > tempResult && r < numPermutations){
+				r++;
+				tempResult = (int)Math.ceil((1/Math.pow(s, r))*r);
+			}
+			bands = numPermutations/r;
+			
+			System.out.println("Given NumOfPermutations "+numPermutations+" and the similarity rate "+s+", the ideal number of bands is "+bands);
+			
 			System.out.println("Please input the number of bands:");
 //			bands = Integer.parseInt(br.readLine());
-			bands = 30;
+			bands = 100;
 			
 			System.out.println("NumOfPermutations "+numPermutations+", the similarity rate "+s+" and the number of bands is "+bands);
 			System.out.println("Building LSH:");
